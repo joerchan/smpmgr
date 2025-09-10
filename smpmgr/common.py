@@ -36,12 +36,14 @@ class Options:
     timeout: float
     transport: TransportDefinition
     mtu: int | None
+    baudrate: int | None
 
 
 class SMPSerialTransportKwargs(TypedDict):
     max_smp_encoded_frame_size: NotRequired[int]
     line_length: NotRequired[int]
     line_buffers: NotRequired[int]
+    baudrate: NotRequired[int]
 
 
 def get_custom_smpclient(options: Options, smp_client_cls: Type[TSMPClient]) -> TSMPClient:
@@ -55,6 +57,8 @@ def get_custom_smpclient(options: Options, smp_client_cls: Type[TSMPClient]) -> 
             kwargs['max_smp_encoded_frame_size'] = options.mtu
             kwargs['line_length'] = options.mtu
             kwargs['line_buffers'] = 1
+        if options.baudrate is not None:
+            kwargs['baudrate'] = options.baudrate
         return smp_client_cls(SMPSerialTransport(**kwargs), options.transport.port)
     elif options.transport.ble is not None:
         logger.info(f"Initializing SMPClient with the SMPBLETransport, {options.transport.ble=}")
